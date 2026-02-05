@@ -42,10 +42,10 @@ const iconMap: Record<string, React.ReactNode> = {
   ToggleOn: <ToggleOnIcon fontSize="small" />,
 };
 
-const SidebarContent = ({ pathname }: { pathname: string }) => (
+const SidebarContent = ({ pathname, onLinkClick }: { pathname: string; onLinkClick?: () => void }) => (
   <>
     <Box sx={{ p: 3 }}>
-        <Link href="/home" style={{ textDecoration: 'none' }}>
+        <Link href="/home" style={{ textDecoration: 'none' }} onClick={onLinkClick}>
         <Typography 
           variant="h5" 
           sx={{ 
@@ -72,6 +72,7 @@ const SidebarContent = ({ pathname }: { pathname: string }) => (
             component={Link}
             href="/initialization"
             selected={pathname === '/initialization'}
+            onClick={onLinkClick}
             sx={{
               borderRadius: 2,
               py: 0.5, 
@@ -124,6 +125,7 @@ const SidebarContent = ({ pathname }: { pathname: string }) => (
                 component={Link}
                 href={`/${item.tab}`}
                 selected={isActive}
+                onClick={onLinkClick}
                 sx={{
                   borderRadius: 2,
                   py: 0.5,
@@ -189,7 +191,7 @@ export default function Sidebar({ mobileOpen = false, onMobileClose }: SidebarPr
           '& .MuiDrawer-paper': { boxSizing: 'border-box', width: 260 },
         }}
       >
-        <SidebarContent pathname={pathname} />
+        <SidebarContent pathname={pathname} onLinkClick={onMobileClose} />
       </Drawer>
     );
   }

@@ -47,13 +47,17 @@ export default function AIFloatingBar() {
       <Box
         sx={{
           position: "fixed",
-          bottom: 32,
+          bottom: { xs: 0, md: 32 },
           left: "50%",
           transform: "translateX(-50%)",
-          zIndex: 900,
+          zIndex: 1000,
           width: "100%",
-          maxWidth: 600,
-          px: 2,
+          maxWidth: { xs: "100%", md: 600 },
+          px: { xs: 0, md: 2 },
+          pb: { xs: "env(safe-area-inset-bottom)", md: 0 },
+          bgcolor: { xs: "background.paper", md: "transparent" },
+          borderTop: { xs: "1px solid", md: "none" },
+          borderColor: "divider",
         }}
       >
         <Paper
@@ -63,7 +67,7 @@ export default function AIFloatingBar() {
             display: "flex",
             alignItems: "center",
             width: "100%",
-            borderRadius: 8,
+            borderRadius: { xs: '12px 12px 0 0', md: 8 },
             border: "1px solid",
             borderColor:
               theme.palette.mode === "dark"
@@ -71,8 +75,8 @@ export default function AIFloatingBar() {
                 : "rgba(0,0,0,0.1)",
             bgcolor:
               theme.palette.mode === "dark"
-                ? "rgba(20,20,20,0.8)"
-                : "rgba(255,255,255,0.8)",
+                ? "rgba(20,20,20,0.9)"
+                : "rgba(255,255,255,0.9)",
             backdropFilter: "blur(12px)",
             boxShadow:
               theme.palette.mode === "dark"

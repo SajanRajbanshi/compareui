@@ -267,26 +267,10 @@ export default function InitializationPage() {
   return (
     <Container maxWidth="xl" disableGutters sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
       {/* Hero Section */}
-      <Box sx={{ p: 4, pb: 2 }}>
-        <Typography variant="h4" sx={{ fontWeight: 800, mb: 1, letterSpacing: -0.5 }}>
-          Getting Started
+      <Box sx={{ p: 2, pb: 1 }}>
+        <Typography variant="body1" color="text.secondary" sx={{ maxWidth: 800 }}>
+          Set up your project and start using the generated code.
         </Typography>
-        <Typography variant="body1" color="text.secondary" sx={{ maxWidth: 800, mb: 3 }}>
-          CompareUI helps you generate and compare components across different UI libraries. 
-          Follow this guide to set up your project and start using the generated code.
-        </Typography>
-
-        <Paper variant="outlined" sx={{ p: 2, bgcolor: 'background.default', borderRadius: 2 }}>
-          <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1, display: 'flex', alignItems: 'center', gap: 1 }}>
-            <DescriptionIcon fontSize="small" color="primary" /> Prerequisites
-          </Typography>
-          <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-            <Chip label="Node.js 18+" size="small" variant="outlined" />
-            <Chip label="React 18+" size="small" variant="outlined" />
-            <Chip label="Next.js 14+" size="small" variant="outlined" />
-            <Chip label="TypeScript" size="small" variant="outlined" />
-          </Box>
-        </Paper>
       </Box>
 
       {/* Tabs Section */}

@@ -18,7 +18,9 @@ import {
   Select,
   MenuItem,
   ListItemText,
-  FormControl
+  FormControl,
+  Menu,
+  Button
 } from '@mui/material';
 import { 
   Brightness4 as MoonIcon, 
@@ -40,7 +42,8 @@ const providers: { id: ProviderType; label: string }[] = [
 import { 
   Menu as MenuIcon,
   AutoAwesome as AutoAwesomeIcon,
-  Close as CloseIcon
+  Close as CloseIcon,
+  Widgets as WidgetsIcon
 } from '@mui/icons-material';
 import { useAI } from '@/context/AIContext';
 
@@ -50,11 +53,14 @@ interface TopHeaderProps {
 
 export default function TopHeader({ onMobileNavOpen }: TopHeaderProps) {
   const { selectedProviders, toggleProvider, themeMode, toggleTheme } = React.useContext(ProviderContext);
-  const { toggleAIBar, isAIBarVisible } = useAI(); // Assuming these are added to AIContext
+  const { toggleAIBar, isAIBarVisible } = useAI();
   const pathname = usePathname();
   const router = useRouter();
   const theme = useMuiTheme();
   const title = pathname.split('/').filter(Boolean).pop()?.replace(/-/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase()) || 'Home';
+  
+  // Mobile provider menu state
+  const [mobileProviderAnchor, setMobileProviderAnchor] = React.useState<null | HTMLElement>(null);
 
   return (
     <AppBar 
@@ -130,7 +136,43 @@ export default function TopHeader({ onMobileNavOpen }: TopHeaderProps) {
         )}
 
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-          {/* Provider Selection */}
+          {/* Mobile Provider Selection Button */}
+          <IconButton
+            onClick={(e) => setMobileProviderAnchor(e.currentTarget)}
+            size="small"
+            sx={{ 
+              display: { xs: 'flex', md: 'none' },
+              border: '1px solid',
+              borderColor: 'divider'
+            }}
+          >
+            <WidgetsIcon fontSize="small" />
+          </IconButton>
+
+          {/* Mobile Provider Menu */}
+          <Menu
+            anchorEl={mobileProviderAnchor}
+            open={Boolean(mobileProviderAnchor)}
+            onClose={() => setMobileProviderAnchor(null)}
+            PaperProps={{
+              sx: { minWidth: 200 }
+            }}
+          >
+            <Box sx={{ px: 2, py: 1 }}>
+              <Typography variant="caption" sx={{ fontWeight: 700, color: 'text.secondary' }}>
+                SELECT PROVIDERS
+              </Typography>
+            </Box>
+            <Divider />
+            {providers.map((p) => (
+              <MenuItem key={p.id} onClick={() => toggleProvider(p.id)}>
+                <Checkbox checked={selectedProviders.includes(p.id)} size="small" />
+                <ListItemText primary={p.label} />
+              </MenuItem>
+            ))}
+          </Menu>
+
+          {/* Desktop Provider Selection */}
           <FormControl size="small" sx={{ display: { xs: 'none', md: 'flex' }, width: 220 }}>
             <Select
               multiple
