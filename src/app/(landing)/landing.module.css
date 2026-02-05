@@ -1,0 +1,231 @@
+.container {
+  height: 100vh;
+  width: 100vw;
+  background-color: #ffffff;
+  color: #0f172a;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Background Pattern */
+.background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  background-image: 
+    radial-gradient(#e2e8f0 1px, transparent 1px),
+    radial-gradient(#e2e8f0 1px, transparent 1px);
+  background-size: 40px 40px;
+  background-position: 0 0, 20px 20px;
+  opacity: 0.5;
+  mask-image: linear-gradient(to bottom, black 60%, transparent 100%);
+}
+
+.blob {
+  position: absolute;
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, rgba(59,130,246,0.1) 0%, rgba(255,255,255,0) 70%);
+  border-radius: 50%;
+  z-index: 0;
+  animation: float 20s infinite ease-in-out;
+}
+
+.blob1 {
+  top: -200px;
+  left: -200px;
+}
+
+.blob2 {
+  bottom: -200px;
+  right: -200px;
+  background: radial-gradient(circle, rgba(168,85,247,0.08) 0%, rgba(255,255,255,0) 70%);
+  animation-delay: -5s;
+}
+
+@keyframes float {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(50px, 50px); }
+}
+
+.main {
+  position: relative;
+  z-index: 10;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  margin-top: -60px; /* Offset for visual balance */
+}
+
+.heroContent {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  max-width: 900px;
+  position: relative;
+  z-index: 20;
+}
+
+.title {
+  font-size: clamp(3.5rem, 8vw, 7rem);
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+  background: linear-gradient(135deg, #1e293b 0%, #3b82f6 50%, #2563eb 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin: 0;
+  padding-bottom: 0.2em; /* Prevent descender clipping */
+}
+
+/* ... subtitle/highlight ... */
+.subtitle {
+  font-size: 1.5rem;
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+
+.highlight {
+  background: linear-gradient(135deg, #1e293b 0%, #3b82f6 50%, #2563eb 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.ctaButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 2.5rem;
+  background: #3b82f6; /* Matching Providers primary.main */
+  color: white;
+  border-radius: 9999px;
+  font-size: 1.125rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.3), 0 2px 4px -1px rgba(59, 130, 246, 0.15);
+  margin-top: 2rem;
+  border: 1px solid transparent;
+}
+
+.ctaButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 15px -3px rgba(59, 130, 246, 0.4), 0 4px 6px -2px rgba(59, 130, 246, 0.2);
+  background: #2563eb; /* Matching Providers primary.dark */
+}
+
+/* ... icon ... */
+
+/* Curved Stream Effect */
+.streamContainer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  overflow: hidden;
+}
+
+.streamItem {
+  position: absolute;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: rgba(59, 130, 246, 0.15);
+  white-space: nowrap;
+  opacity: 0;
+  /* Start off-screen bottom-left -> Curve through center -> Exit top-right */
+  offset-path: path('M -100 900 C 200 800, 600 600, 800 400 S 1400 0, 1800 -200');
+  animation: floatStream 20s linear infinite;
+  user-select: none;
+}
+
+@keyframes floatStream {
+  0% {
+    offset-distance: 0%;
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  15% {
+    opacity: 1;
+  }
+  85% {
+    opacity: 1;
+  }
+  100% {
+    offset-distance: 100%;
+    opacity: 0;
+    transform: scale(1.2);
+  }
+}
+
+/* Marquee */
+.marqueeContainer {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(8px);
+  border-top: 1px solid rgba(226, 232, 240, 0.6);
+  padding: 2rem 0;
+  z-index: 30;
+  overflow: hidden;
+}
+
+.marqueeTrack {
+  display: flex;
+  width: max-content;
+  animation: scroll 40s linear infinite;
+}
+
+.marqueeItem {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #94a3b8;
+  margin: 0 3rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  transition: color 0.3s ease;
+  user-select: none;
+}
+
+.marqueeItem:hover {
+  color: #3b82f6;
+}
+
+@keyframes scroll {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+.fadeOverlay {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 150px;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.fadeLeft {
+  left: 0;
+  background: linear-gradient(to right, #ffffff, transparent);
+}
+
+.fadeRight {
+  right: 0;
+  background: linear-gradient(to left, #ffffff, transparent);
+}
