@@ -106,7 +106,7 @@ export default function TopHeader({ onMobileNavOpen }: TopHeaderProps) {
                 <TextField 
                   {...params}
                   size="small"
-                  placeholder="Search..."
+                  placeholder="Search Component..."
                   sx={{ 
                     width: 300,
                     '& .MuiOutlinedInput-root': {
