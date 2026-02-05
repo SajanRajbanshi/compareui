@@ -49,7 +49,7 @@ export function AIProvider({ children }: { children: React.ReactNode }) {
 
     setIsGenerating(true);
     try {
-      const response = await axios.post('http://localhost:5001/api/config/generate', {
+      const response = await axios.post('https://compareui-server.vercel.app/api/config/generate', {
         componentName: activeComponent,
         prompt: prompt,
         currentConfig: configRef.current
