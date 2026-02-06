@@ -9,6 +9,7 @@ export const componentsConfig = [
   { component: "Radio", tab: "radio", icon: "RadioButtonChecked" },
   { component: "Select", tab:"select", icon: "List" },
   { component: "Switch", tab: "switch", icon: "ToggleOn" },
+  { component: "Progress", tab: "progress", icon: "DonutLarge" },
 ];
 
 export type ComponentConfigItem = typeof componentsConfig[number];

@@ -5,3 +5,4 @@ export * from './codegen/input';
 export * from './codegen/radio';
 export * from './codegen/switch';
 export * from './codegen/select';
+export * from './codegen/progress';

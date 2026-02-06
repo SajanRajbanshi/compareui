@@ -25,7 +25,8 @@ import {
   RadioButtonChecked as RadioButtonCheckedIcon,
   List as ListIcon,
   ToggleOn as ToggleOnIcon,
-  Settings as SettingsIcon
+  Settings as SettingsIcon,
+  DonutLarge as DonutLargeIcon
 } from '@mui/icons-material';
 import { componentsConfig } from '@/constants/components';
 
@@ -40,6 +41,7 @@ const iconMap: Record<string, React.ReactNode> = {
   RadioButtonChecked: <RadioButtonCheckedIcon fontSize="small" />,
   List: <ListIcon fontSize="small" />,
   ToggleOn: <ToggleOnIcon fontSize="small" />,
+  DonutLarge: <DonutLargeIcon fontSize="small" />,
 };
 
 const SidebarContent = ({ pathname, onLinkClick }: { pathname: string; onLinkClick?: () => void }) => (
