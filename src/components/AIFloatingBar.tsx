@@ -20,15 +20,25 @@ import {
 } from "@mui/icons-material";
 import { useAI } from "@/context/AIContext";
 import { usePathname } from "next/navigation";
+import { ProviderContext } from "@/components/Providers";
 
 export default function AIFloatingBar() {
-  const { prompt, setPrompt, generateConfig, isGenerating, activeComponent, isAIBarVisible, toggleAIBar } =
+  const { prompt, setPrompt, generateConfig, generateCode, isGenerating, activeComponent, isAIBarVisible, toggleAIBar } =
     useAI();
+  const { selectedProviders } = React.useContext(ProviderContext);
   const theme = useTheme();
   const pathname = usePathname();
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && !isGenerating && prompt.trim()) {
+      handleSend();
+    }
+  };
+
+  const handleSend = () => {
+    if (pathname === '/playground') {
+      generateCode();
+    } else {
       generateConfig();
     }
   };
@@ -121,7 +131,7 @@ export default function AIFloatingBar() {
           <Box sx={{ p: 0.5, display: 'flex', alignItems: 'center', gap: 0.5 }}>
             <IconButton
               color="primary"
-              onClick={() => generateConfig()}
+              onClick={handleSend}
               disabled={isGenerating || !prompt.trim()}
               sx={{
                 bgcolor: prompt.trim() ? "primary.main" : "transparent",

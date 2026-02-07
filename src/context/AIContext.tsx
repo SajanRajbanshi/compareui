@@ -8,9 +8,11 @@ interface AIContextType {
   prompt: string;
   setPrompt: (prompt: string) => void;
   generateConfig: () => Promise<void>;
+  generateCode: () => Promise<void>;
   registerComponent: (name: string, currentConfig: any, setConfig: (config: any) => void) => void;
   activeComponent: string | null;
   isAIBarVisible: boolean;
+  setIsAIBarVisible: (visible: boolean) => void;
   toggleAIBar: () => void;
 }
 
@@ -19,9 +21,11 @@ const AIContext = createContext<AIContextType>({
   prompt: '',
   setPrompt: () => {},
   generateConfig: async () => {},
+  generateCode: async () => {},
   registerComponent: () => {},
   activeComponent: null,
   isAIBarVisible: true,
+  setIsAIBarVisible: () => {},
   toggleAIBar: () => {},
 });
 
@@ -49,7 +53,7 @@ export function AIProvider({ children }: { children: React.ReactNode }) {
 
     setIsGenerating(true);
     try {
-      const response = await axios.post('https://compareui-server.vercel.app/api/config/generate', {
+      const response = await axios.post('http://localhost:5001/api/config/generate', {
         componentName: activeComponent,
         prompt: prompt,
         currentConfig: configRef.current
@@ -68,15 +72,42 @@ export function AIProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const generateCode = async () => {
+    if (!prompt.trim() || !activeComponent || !configRef.current || !setConfigRef.current) {
+      return;
+    }
+
+    setIsGenerating(true);
+    try {
+      const response = await axios.post('http://localhost:5001/api/code/generate', {
+        prompt: prompt,
+        prevCode: configRef.current
+      });
+
+      if (response.data.success && response.data.config) {
+        setConfigRef.current(response.data.config);
+        setPrompt(''); // Clear prompt on success
+      }
+    } catch (error: any) {
+      console.error('Failed to generate code:', error);
+      const errorMessage = error.response?.data?.error || error.response?.data?.lastError || 'Failed to generate code';
+      alert(`Error: ${errorMessage}`);
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
   return (
     <AIContext.Provider value={{
       isGenerating,
       prompt,
       setPrompt,
       generateConfig,
+      generateCode,
       registerComponent,
       activeComponent,
       isAIBarVisible,
+      setIsAIBarVisible,
       toggleAIBar
     }}>
       {children}

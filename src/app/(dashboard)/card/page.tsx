@@ -18,7 +18,8 @@ import {
   IconButton,
   Tooltip,
   Snackbar,
-  Alert
+  Alert,
+  CircularProgress
 } from '@mui/material';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import CodeIcon from '@mui/icons-material/Code';
@@ -30,25 +31,29 @@ import { ProviderContext } from '@/components/Providers';
 import { generateCardCode } from '@/lib/codegen/card';
 import { useAI } from '@/context/AIContext';
 
+import { useLocalStorage } from '@/hooks/useLocalStorage';
+import { useMounted } from '@/hooks/useMounted';
+
 export default function CardPage() {
   const { selectedProviders } = React.useContext(ProviderContext);
   const { registerComponent } = useAI();
+  const mounted = useMounted();
   
   // State for config
-  const [title, setTitle] = React.useState('Card Title');
-  const [description, setDescription] = React.useState('This is a description of the card component. It demonstrates various styles across different UI libraries.');
-  const [image, setImage] = React.useState(true);
+  const [title, setTitle] = useLocalStorage('card_title', 'Card Title');
+  const [description, setDescription] = useLocalStorage('card_description', 'This is a description of the card component. It demonstrates various styles across different UI libraries.');
+  const [image, setImage] = useLocalStorage('card_image', true);
   
-  const [borderRadius, setBorderRadius] = React.useState(12);
-  const [backgroundColor, setBackgroundColor] = React.useState<string | undefined>(undefined);
-  const [titleColor, setTitleColor] = React.useState<string | undefined>(undefined);
-  const [fontColor, setFontColor] = React.useState<string | undefined>(undefined);
-  const [borderColor, setBorderColor] = React.useState<string | undefined>(undefined);
-  const [borderWidth, setBorderWidth] = React.useState<number>(1);
-  const [padding, setPadding] = React.useState<{ px: number; py: number }>({ px: 24, py: 24 });
-  const [shadow, setShadow] = React.useState<'none' | 'sm' | 'md' | 'lg' | undefined>('md');
+  const [borderRadius, setBorderRadius] = useLocalStorage('card_borderRadius', 12);
+  const [backgroundColor, setBackgroundColor] = useLocalStorage<string | undefined>('card_backgroundColor', undefined);
+  const [titleColor, setTitleColor] = useLocalStorage<string | undefined>('card_titleColor', undefined);
+  const [fontColor, setFontColor] = useLocalStorage<string | undefined>('card_fontColor', undefined);
+  const [borderColor, setBorderColor] = useLocalStorage<string | undefined>('card_borderColor', undefined);
+  const [borderWidth, setBorderWidth] = useLocalStorage<number>('card_borderWidth', 1);
+  const [padding, setPadding] = useLocalStorage<{ px: number; py: number }>('card_padding', { px: 24, py: 24 });
+  const [shadow, setShadow] = useLocalStorage<'none' | 'sm' | 'md' | 'lg' | undefined>('card_shadow', 'md');
 
-  const [viewMode, setViewMode] = React.useState<'preview' | 'code'>('preview');
+  const [viewMode, setViewMode] = useLocalStorage<'preview' | 'code'>('card_viewMode', 'preview');
   const [copiedProvider, setCopiedProvider] = React.useState<string | null>(null);
 
   const cardConfig = React.useMemo(() => ({
@@ -89,6 +94,24 @@ export default function CardPage() {
   React.useEffect(() => {
     registerComponent('card', cardConfig, handleConfigUpdate);
   }, [cardConfig, registerComponent, handleConfigUpdate]);
+
+  if (!mounted) {
+    return (
+     <Container maxWidth="xl" sx={{ py: 4 }}>
+      <Box sx={{ mb: 4 }}>
+        <Typography variant="h4" sx={{ fontWeight: 800, mb: 1 }}>
+          Card Comparison
+        </Typography>
+        <Typography variant="body1" color="text.secondary">
+          Comparing container styles and layout patterns across libraries.
+        </Typography>
+      </Box>
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '50vh' }}>
+        <CircularProgress />
+      </Box>
+     </Container>
+    );
+  }
 
   const handleCopy = (provider: string) => {
     const code = generateCardCode(provider, cardConfig);

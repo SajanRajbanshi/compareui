@@ -19,7 +19,8 @@ import {
   Snackbar,
   Alert,
   FormControlLabel,
-  Switch as MuiSwitch
+  Switch as MuiSwitch,
+  CircularProgress
 } from '@mui/material';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import CodeIcon from '@mui/icons-material/Code';
@@ -31,18 +32,22 @@ import { ProviderContext } from '@/components/Providers';
 import { generateSwitchCode } from '@/lib/codeGen';
 import { useAI } from '@/context/AIContext';
 
+import { useLocalStorage } from '@/hooks/useLocalStorage';
+import { useMounted } from '@/hooks/useMounted';
+
 export default function SwitchPage() {
   const { selectedProviders, themeMode } = React.useContext(ProviderContext);
   const { registerComponent } = useAI();
+  const mounted = useMounted();
   
   // State for config properties
-  const [size, setSize] = React.useState<'small' | 'medium' | 'large'>('medium');
-  const [disabled, setDisabled] = React.useState(false);
-  const [checked, setChecked] = React.useState(false);
-  const [label, setLabel] = React.useState('Toggle');
-  const [color, setColor] = React.useState<string | undefined>(undefined);
+  const [size, setSize] = useLocalStorage<'small' | 'medium' | 'large'>('switch_size', 'medium');
+  const [disabled, setDisabled] = useLocalStorage('switch_disabled', false);
+  const [checked, setChecked] = useLocalStorage('switch_checked', false);
+  const [label, setLabel] = useLocalStorage('switch_label', 'Toggle');
+  const [color, setColor] = useLocalStorage<string | undefined>('switch_color', undefined);
 
-  const [viewMode, setViewMode] = React.useState<'preview' | 'code'>('preview');
+  const [viewMode, setViewMode] = useLocalStorage<'preview' | 'code'>('switch_viewMode', 'preview');
   const [copiedProvider, setCopiedProvider] = React.useState<string | null>(null);
 
   const switchConfig = React.useMemo(() => ({
@@ -70,6 +75,24 @@ export default function SwitchPage() {
     registerComponent('switch', switchConfig, handleConfigUpdate);
   }, [switchConfig, registerComponent, handleConfigUpdate]);
 
+  if (!mounted) {
+    return (
+     <Container maxWidth="xl" sx={{ py: 4 }}>
+      <Box sx={{ mb: 4 }}>
+        <Typography variant="h4" sx={{ fontWeight: 800, mb: 1 }}>
+          Switch Comparison
+        </Typography>
+        <Typography variant="body1" color="text.secondary">
+          Comparing toggle switch implementations and interaction patterns across libraries.
+        </Typography>
+      </Box>
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '50vh' }}>
+        <CircularProgress />
+      </Box>
+     </Container>
+    );
+  }
+
   const handleCopy = (provider: string) => {
     const code = generateSwitchCode(provider, switchConfig);
     navigator.clipboard.writeText(code);
@@ -81,10 +104,10 @@ export default function SwitchPage() {
     <Container maxWidth="xl" sx={{ py: 4 }}>
       <Box sx={{ mb: 4 }}>
         <Typography variant="h4" sx={{ fontWeight: 800, mb: 1 }}>
-          Switch Comparison
+           Switch Comparison
         </Typography>
         <Typography variant="body1" color="text.secondary">
-          Comparing toggle switch implementations and interaction patterns across libraries.
+           Comparing toggle switch implementations and interaction patterns across libraries.
         </Typography>
       </Box>
 

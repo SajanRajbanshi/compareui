@@ -43,7 +43,8 @@ import {
   Menu as MenuIcon,
   AutoAwesome as AutoAwesomeIcon,
   Close as CloseIcon,
-  Widgets as WidgetsIcon
+  Widgets as WidgetsIcon,
+  PlayArrow as PlayArrowIcon
 } from '@mui/icons-material';
 import { useAI } from '@/context/AIContext';
 
@@ -89,6 +90,38 @@ export default function TopHeader({ onMobileNavOpen }: TopHeaderProps) {
           <Typography variant="h6" component="div" sx={{ fontWeight: 800, color: 'text.primary', minWidth: 120 }}>
             {title}
           </Typography>
+          {pathname !== '/playground' && (
+            <Button 
+              startIcon={<PlayArrowIcon />} 
+              size="small" 
+              variant="outlined"
+              onClick={() => router.push('/playground')}
+              sx={{ 
+                ml: 2, 
+                borderRadius: 2, 
+                fontWeight: 700,
+                display: { xs: 'none', sm: 'flex' }
+              }}
+            >
+              Playground
+            </Button>
+          )}
+
+          {/* Mobile Playground Icon (only if not on playground page) */}
+          {pathname !== '/playground' && (
+             <IconButton
+               onClick={() => router.push('/playground')}
+               size="small"
+               sx={{ 
+                 ml: 1,
+                 display: { xs: 'flex', sm: 'none' },
+                 border: '1px solid',
+                 borderColor: 'divider'
+               }}
+             >
+               <PlayArrowIcon fontSize="small" />
+             </IconButton>
+          )}
         </Box>
 
         {/* Centered Search */}

@@ -19,7 +19,8 @@ import {
   Snackbar,
   Alert,
   FormControlLabel,
-  Switch as MuiSwitch
+  Switch as MuiSwitch,
+  CircularProgress
 } from '@mui/material';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import CodeIcon from '@mui/icons-material/Code';
@@ -31,18 +32,22 @@ import { ProviderContext } from '@/components/Providers';
 import { generateRadioCode } from '@/lib/codeGen';
 import { useAI } from '@/context/AIContext';
 
+import { useLocalStorage } from '@/hooks/useLocalStorage';
+import { useMounted } from '@/hooks/useMounted';
+
 export default function RadioPage() {
   const { selectedProviders, themeMode } = React.useContext(ProviderContext);
   const { registerComponent } = useAI();
+  const mounted = useMounted();
   
   // State for config properties
-  const [size, setSize] = React.useState<'small' | 'medium' | 'large'>('medium');
-  const [disabled, setDisabled] = React.useState(false);
-  const [selectedValue, setSelectedValue] = React.useState('Option 1');
+  const [size, setSize] = useLocalStorage<'small' | 'medium' | 'large'>('radio_size', 'medium');
+  const [disabled, setDisabled] = useLocalStorage('radio_disabled', false);
+  const [selectedValue, setSelectedValue] = useLocalStorage('radio_selectedValue', 'Option 1');
   const [options] = React.useState(['Option 1', 'Option 2', 'Option 3']);
-  const [color, setColor] = React.useState<string | undefined>(undefined);
+  const [color, setColor] = useLocalStorage<string | undefined>('radio_color', undefined);
 
-  const [viewMode, setViewMode] = React.useState<'preview' | 'code'>('preview');
+  const [viewMode, setViewMode] = useLocalStorage<'preview' | 'code'>('radio_viewMode', 'preview');
   const [copiedProvider, setCopiedProvider] = React.useState<string | null>(null);
 
   const radioConfig = React.useMemo(() => ({
@@ -68,6 +73,24 @@ export default function RadioPage() {
   React.useEffect(() => {
     registerComponent('radio', radioConfig, handleConfigUpdate);
   }, [radioConfig, registerComponent, handleConfigUpdate]);
+
+  if (!mounted) {
+    return (
+     <Container maxWidth="xl" sx={{ py: 4 }}>
+      <Box sx={{ mb: 4 }}>
+        <Typography variant="h4" sx={{ fontWeight: 800, mb: 1 }}>
+          Radio Comparison
+        </Typography>
+        <Typography variant="body1" color="text.secondary">
+          Comparing radio button implementations and selection patterns across libraries.
+        </Typography>
+      </Box>
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '50vh' }}>
+        <CircularProgress />
+      </Box>
+     </Container>
+    );
+  }
 
   const handleCopy = (provider: string) => {
     const code = generateRadioCode(provider, radioConfig);

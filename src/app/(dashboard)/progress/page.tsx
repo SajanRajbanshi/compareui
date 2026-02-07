@@ -17,7 +17,8 @@ import {
   Slider,
   TextField,
   Snackbar,
-  Alert
+  Alert,
+  CircularProgress
 } from '@mui/material';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import CodeIcon from '@mui/icons-material/Code';
@@ -28,23 +29,27 @@ import { generateProgressCode } from '@/lib/codeGen';
 
 import { useAI } from '@/context/AIContext';
 
+import { useLocalStorage } from '@/hooks/useLocalStorage';
+import { useMounted } from '@/hooks/useMounted';
+
 export default function ProgressPage() {
   const { selectedProviders } = React.useContext(ProviderContext);
   const { registerComponent } = useAI();
+  const mounted = useMounted();
   
   // Controls
-  const [size, setSize] = React.useState<'small' | 'medium' | 'large'>('medium');
-  const [value, setValue] = React.useState(60);
-  const [max, setMax] = React.useState(100);
-  const [label, setLabel] = React.useState('Uploading Assets...');
+  const [size, setSize] = useLocalStorage<'small' | 'medium' | 'large'>('progress_size', 'medium');
+  const [value, setValue] = useLocalStorage('progress_value', 60);
+  const [max, setMax] = useLocalStorage('progress_max', 100);
+  const [label, setLabel] = useLocalStorage('progress_label', 'Uploading Assets...');
   
   // Internal state for AI updates
-  const [indicatorColor, setIndicatorColor] = React.useState<string | undefined>(undefined);
-  const [trackColor, setTrackColor] = React.useState<string | undefined>(undefined);
-  const [height, setHeight] = React.useState<number | undefined>(undefined);
-  const [borderRadius, setBorderRadius] = React.useState<number | string | undefined>(undefined);
+  const [indicatorColor, setIndicatorColor] = useLocalStorage<string | undefined>('progress_indicatorColor', undefined);
+  const [trackColor, setTrackColor] = useLocalStorage<string | undefined>('progress_trackColor', undefined);
+  const [height, setHeight] = useLocalStorage<number | undefined>('progress_height', undefined);
+  const [borderRadius, setBorderRadius] = useLocalStorage<number | string | undefined>('progress_borderRadius', undefined);
 
-  const [viewMode, setViewMode] = React.useState<'preview' | 'code'>('preview');
+  const [viewMode, setViewMode] = useLocalStorage<'preview' | 'code'>('progress_viewMode', 'preview');
   const [copiedProvider, setCopiedProvider] = React.useState<string | null>(null);
 
   const config = React.useMemo(() => ({
@@ -79,6 +84,24 @@ export default function ProgressPage() {
   React.useEffect(() => {
     registerComponent('progress', config, handleConfigUpdate);
   }, [config, registerComponent, handleConfigUpdate]);
+
+  if (!mounted) {
+    return (
+     <Container maxWidth="xl" sx={{ py: 4 }}>
+      <Box sx={{ mb: 4 }}>
+        <Typography variant="h4" sx={{ fontWeight: 800, mb: 1 }}>
+          Progress Comparison
+        </Typography>
+        <Typography variant="body1" color="text.secondary">
+          Visualize task completion states across different library implementations.
+        </Typography>
+      </Box>
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '50vh' }}>
+        <CircularProgress />
+      </Box>
+     </Container>
+    );
+  }
 
   const handleCopy = (provider: string) => {
     const code = generateProgressCode(provider, config);

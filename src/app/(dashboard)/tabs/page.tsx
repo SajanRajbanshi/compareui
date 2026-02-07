@@ -18,7 +18,8 @@ import {
   FormControl,
   InputLabel,
   Select,
-  MenuItem
+  MenuItem,
+  CircularProgress
 } from '@mui/material';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import CodeIcon from '@mui/icons-material/Code';
@@ -30,26 +31,30 @@ import { ProviderContext } from '@/components/Providers';
 import { generateTabsCode } from '@/lib/codegen/tabs';
 import { useAI } from '@/context/AIContext';
 
+import { useLocalStorage } from '@/hooks/useLocalStorage';
+import { useMounted } from '@/hooks/useMounted';
+
 export default function TabsPage() {
   const { selectedProviders } = React.useContext(ProviderContext);
   const { registerComponent } = useAI();
+  const mounted = useMounted();
   
   // State for config
-  const [borderRadius, setBorderRadius] = React.useState(8);
-  const [padding, setPadding] = React.useState(2);
-  const [orientation, setOrientation] = React.useState<'horizontal' | 'vertical'>('horizontal');
+  const [borderRadius, setBorderRadius] = useLocalStorage('tabs_borderRadius', 8);
+  const [padding, setPadding] = useLocalStorage('tabs_padding', 2);
+  const [orientation, setOrientation] = useLocalStorage<'horizontal' | 'vertical'>('tabs_orientation', 'horizontal');
   
-  const [activeColor, setActiveColor] = React.useState<string | undefined>(undefined);
-  const [inactiveColor, setInactiveColor] = React.useState<string | undefined>(undefined);
-  const [backgroundColor, setBackgroundColor] = React.useState<string | undefined>(undefined);
+  const [activeColor, setActiveColor] = useLocalStorage<string | undefined>('tabs_activeColor', undefined);
+  const [inactiveColor, setInactiveColor] = useLocalStorage<string | undefined>('tabs_inactiveColor', undefined);
+  const [backgroundColor, setBackgroundColor] = useLocalStorage<string | undefined>('tabs_backgroundColor', undefined);
 
-  const [tabs, setTabs] = React.useState([
+  const [tabs, setTabs] = useLocalStorage('tabs_items', [
     { label: 'Account', value: 'account', content: 'Manage your account settings and preferences here.' },
     { label: 'Password', value: 'password', content: 'Update your password and security settings.' },
     { label: 'Notifications', value: 'notifications', content: 'Configure how you receive notifications.' }
   ]);
 
-  const [viewMode, setViewMode] = React.useState<'preview' | 'code'>('preview');
+  const [viewMode, setViewMode] = useLocalStorage<'preview' | 'code'>('tabs_viewMode', 'preview');
   const [copiedProvider, setCopiedProvider] = React.useState<string | null>(null);
 
   const tabsConfig = React.useMemo(() => ({
@@ -83,6 +88,24 @@ export default function TabsPage() {
   React.useEffect(() => {
     registerComponent('tabs', tabsConfig, handleConfigUpdate);
   }, [tabsConfig, registerComponent, handleConfigUpdate]);
+
+  if (!mounted) {
+    return (
+     <Container maxWidth="xl" sx={{ py: 4 }}>
+      <Box sx={{ mb: 4 }}>
+        <Typography variant="h4" sx={{ fontWeight: 800, mb: 1 }}>
+          Tabs Comparison
+        </Typography>
+        <Typography variant="body1" color="text.secondary">
+          Comparing tab navigation components across libraries.
+        </Typography>
+      </Box>
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '50vh' }}>
+        <CircularProgress />
+      </Box>
+     </Container>
+    );
+  }
 
   const handleCopy = (provider: string) => {
     const code = generateTabsCode(provider, tabsConfig);

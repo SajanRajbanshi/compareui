@@ -18,7 +18,8 @@ import {
   IconButton,
   Tooltip,
   Snackbar,
-  Alert
+  Alert,
+  CircularProgress
 } from '@mui/material';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import CodeIcon from '@mui/icons-material/Code';
@@ -30,19 +31,24 @@ import { ProviderContext } from '@/components/Providers';
 import { useAI } from '@/context/AIContext';
 import { generateInputCode } from '@/lib/codeGen';
 
+import { useLocalStorage } from '@/hooks/useLocalStorage';
+import { useMounted } from '@/hooks/useMounted';
+
 export default function InputPage() {
   const { selectedProviders } = React.useContext(ProviderContext);
   const { registerComponent } = useAI();
+  const mounted = useMounted();
   
   // State
-  const [variant, setVariant] = React.useState('outlined');
-  const [size, setSize] = React.useState<'small' | 'medium' | 'large'>('medium');
-  const [borderRadius, setBorderRadius] = React.useState(8);
-  const [label, setLabel] = React.useState('Email Address');
-  const [placeholder, setPlaceholder] = React.useState('user@example.com');
-  const [styles, setStyles] = React.useState<any>({});
+  const [variant, setVariant] = useLocalStorage('input_variant', 'outlined');
+  const [size, setSize] = useLocalStorage<'small' | 'medium' | 'large'>('input_size', 'medium');
+  const [borderRadius, setBorderRadius] = useLocalStorage('input_borderRadius', 8);
+  const [label, setLabel] = useLocalStorage('input_label', 'Email Address');
+  const [placeholder, setPlaceholder] = useLocalStorage('input_placeholder', 'user@example.com');
+  // Since styles is an object with potentially many keys, we use JSON for storage
+  const [styles, setStyles] = useLocalStorage<any>('input_styles', {});
   
-  const [viewMode, setViewMode] = React.useState<'preview' | 'code'>('preview');
+  const [viewMode, setViewMode] = useLocalStorage<'preview' | 'code'>('input_viewMode', 'preview');
   const [copiedProvider, setCopiedProvider] = React.useState<string | null>(null);
 
   const inputConfig = React.useMemo(() => ({
@@ -74,6 +80,24 @@ export default function InputPage() {
   React.useEffect(() => {
     registerComponent('input', inputConfig, handleConfigUpdate);
   }, [inputConfig, registerComponent, handleConfigUpdate]);
+
+  if (!mounted) {
+    return (
+     <Container maxWidth="xl" sx={{ py: 4 }}>
+      <Box sx={{ mb: 4 }}>
+        <Typography variant="h4" sx={{ fontWeight: 800, mb: 1 }}>
+          Input Comparison
+        </Typography>
+        <Typography variant="body1" color="text.secondary">
+          Compare form entry fields and validation styling across different providers.
+        </Typography>
+      </Box>
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '50vh' }}>
+        <CircularProgress />
+      </Box>
+     </Container>
+    );
+  }
 
   const handleCopy = (provider: string) => {
     const code = generateInputCode(provider, inputConfig);

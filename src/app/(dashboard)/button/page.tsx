@@ -18,7 +18,8 @@ import {
   IconButton,
   Tooltip,
   Snackbar,
-  Alert
+  Alert,
+  CircularProgress
 } from '@mui/material';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import CodeIcon from '@mui/icons-material/Code';
@@ -32,23 +33,27 @@ import { generateButtonCode } from '@/lib/codeGen';
 // ... imports
 import { useAI } from '@/context/AIContext';
 
+import { useLocalStorage } from '@/hooks/useLocalStorage';
+import { useMounted } from '@/hooks/useMounted';
+
 export default function ButtonPage() {
   const { selectedProviders } = React.useContext(ProviderContext);
   const { registerComponent } = useAI();
+  const mounted = useMounted();
   
   // State for all config properties
-  const [variant, setVariant] = React.useState('contained');
-  const [size, setSize] = React.useState<'small' | 'medium' | 'large'>('medium');
-  const [borderRadius, setBorderRadius] = React.useState(12);
-  const [backgroundColor, setBackgroundColor] = React.useState<string | undefined>(undefined);
-  const [fontColor, setFontColor] = React.useState<string | undefined>(undefined);
-  const [borderColor, setBorderColor] = React.useState<string | undefined>(undefined);
-  const [borderStyle, setBorderStyle] = React.useState<'solid' | 'dashed' | 'dotted' | undefined>(undefined);
-  const [borderWidth, setBorderWidth] = React.useState<number | undefined>(undefined);
-  const [padding, setPadding] = React.useState<{ px: number; py: number }>({ px: 24, py: 8 });
-  const [label, setLabel] = React.useState('Button');
+  const [variant, setVariant] = useLocalStorage('btn_variant', 'contained');
+  const [size, setSize] = useLocalStorage<'small' | 'medium' | 'large'>('btn_size', 'medium');
+  const [borderRadius, setBorderRadius] = useLocalStorage('btn_borderRadius', 12);
+  const [backgroundColor, setBackgroundColor] = useLocalStorage<string | undefined>('btn_backgroundColor', undefined);
+  const [fontColor, setFontColor] = useLocalStorage<string | undefined>('btn_fontColor', undefined);
+  const [borderColor, setBorderColor] = useLocalStorage<string | undefined>('btn_borderColor', undefined);
+  const [borderStyle, setBorderStyle] = useLocalStorage<'solid' | 'dashed' | 'dotted' | undefined>('btn_borderStyle', undefined);
+  const [borderWidth, setBorderWidth] = useLocalStorage<number | undefined>('btn_borderWidth', undefined);
+  const [padding, setPadding] = useLocalStorage<{ px: number; py: number }>('btn_padding', { px: 24, py: 8 });
+  const [label, setLabel] = useLocalStorage('btn_label', 'Button');
 
-  const [viewMode, setViewMode] = React.useState<'preview' | 'code'>('preview');
+  const [viewMode, setViewMode] = useLocalStorage<'preview' | 'code'>('btn_viewMode', 'preview');
   const [copiedProvider, setCopiedProvider] = React.useState<string | null>(null);
 
   const btnConfig = React.useMemo(() => ({
@@ -86,6 +91,25 @@ export default function ButtonPage() {
   React.useEffect(() => {
     registerComponent('button', btnConfig, handleConfigUpdate);
   }, [btnConfig, registerComponent, handleConfigUpdate]);
+
+  if (!mounted) {
+    return (
+     <Container maxWidth="xl" sx={{ py: 4 }}>
+      <Box sx={{ mb: 4 }}>
+        <Typography variant="h4" sx={{ fontWeight: 800, mb: 1 }}>
+          Button Comparison
+        </Typography>
+        <Typography variant="body1" color="text.secondary">
+          Comparing interaction patterns and visual styles of primary actions across libraries.
+        </Typography>
+      </Box>
+      {/* Skeleton loading state */}
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '50vh' }}>
+        <CircularProgress />
+      </Box>
+     </Container>
+    );
+  }
 
   const handleCopy = (provider: string) => {
     const code = generateButtonCode(provider, btnConfig);

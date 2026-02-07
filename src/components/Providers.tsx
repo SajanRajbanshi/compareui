@@ -10,6 +10,7 @@ import { AntdRegistry } from "@ant-design/nextjs-registry";
 import { ConfigProvider, theme } from "antd";
 import { cn } from "@/lib/utils";
 import { AIProvider } from "@/context/AIContext";
+import { useLocalStorage } from "@/hooks/useLocalStorage";
 
 export type ProviderType = "mui" | "chakra" | "antd" | "shadcn" | "aceternity";
 export type ThemeMode = "light" | "dark";
@@ -72,9 +73,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const isLanding = pathname === "/";
   
-  const [selectedProviders, setSelectedProviders] = React.useState<
-    ProviderType[]
-  >(["mui", "shadcn", "chakra"]);
+  const [selectedProviders, setSelectedProviders] = useLocalStorage<ProviderType[]>("selectedProviders", ["mui", "shadcn", "chakra"]);
   const [themeMode, setThemeMode] = React.useState<ThemeMode>("light");
   const [search, setSearch] = React.useState("");
 

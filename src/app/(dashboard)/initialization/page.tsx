@@ -17,7 +17,8 @@ import {
   ListItem,
   ListItemIcon,
   ListItemText,
-  Chip
+  Chip,
+  CircularProgress
 } from '@mui/material';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import CheckIcon from '@mui/icons-material/Check';
@@ -216,8 +217,12 @@ export default function MyComponent() {
   }
 ];
 
+import { useLocalStorage } from '@/hooks/useLocalStorage';
+import { useMounted } from '@/hooks/useMounted';
+
 export default function InitializationPage() {
-  const [activeTab, setActiveTab] = React.useState(0);
+  const mounted = useMounted();
+  const [activeTab, setActiveTab] = useLocalStorage('init_activeTab', 0);
   const [copied, setCopied] = React.useState<string | null>(null);
 
   const handleCopy = (text: string, id: string) => {
@@ -263,6 +268,14 @@ export default function InitializationPage() {
       </Box>
     </Paper>
   );
+
+  if (!mounted) {
+    return (
+      <Container maxWidth="xl" disableGutters sx={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <CircularProgress />
+      </Container>
+    );
+  }
 
   return (
     <Container maxWidth="xl" disableGutters sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>

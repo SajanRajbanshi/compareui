@@ -17,7 +17,8 @@ import {
   Tooltip,
   IconButton,
   Snackbar,
-  Alert
+  Alert,
+  CircularProgress
 } from '@mui/material';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import CodeIcon from '@mui/icons-material/Code';
@@ -30,23 +31,27 @@ import { generateAccordionCode } from '@/lib/codeGen';
 
 import { useAI } from '@/context/AIContext';
 
+import { useLocalStorage } from '@/hooks/useLocalStorage';
+import { useMounted } from '@/hooks/useMounted';
+
 export default function AccordionPage() {
   const { selectedProviders } = React.useContext(ProviderContext);
   const { registerComponent } = useAI();
+  const mounted = useMounted();
   
   // Controls
-  const [size, setSize] = React.useState<'small' | 'medium' | 'large'>('medium');
+  const [size, setSize] = useLocalStorage<'small' | 'medium' | 'large'>('accordion_size', 'medium');
   
   // Internal state for AI updates
-  const [borderRadius, setBorderRadius] = React.useState(8);
-  const [backgroundColor, setBackgroundColor] = React.useState<string>('transparent');
-  const [borderColor, setBorderColor] = React.useState<string>('rgba(0,0,0,0.1)');
-  const [titleColor, setTitleColor] = React.useState<string | undefined>(undefined);
-  const [answerColor, setAnswerColor] = React.useState<string | undefined>(undefined);
-  const [title, setTitle] = React.useState('What do you like the most?');
-  const [content, setContent] = React.useState('I like momo the most and I know you like it too secretly.');
+  const [borderRadius, setBorderRadius] = useLocalStorage('accordion_borderRadius', 8);
+  const [backgroundColor, setBackgroundColor] = useLocalStorage<string>('accordion_backgroundColor', 'transparent');
+  const [borderColor, setBorderColor] = useLocalStorage<string>('accordion_borderColor', 'rgba(0,0,0,0.1)');
+  const [titleColor, setTitleColor] = useLocalStorage<string | undefined>('accordion_titleColor', undefined);
+  const [answerColor, setAnswerColor] = useLocalStorage<string | undefined>('accordion_answerColor', undefined);
+  const [title, setTitle] = useLocalStorage('accordion_title', 'What do you like the most?');
+  const [content, setContent] = useLocalStorage('accordion_content', 'I like momo the most and I know you like it too secretly.');
 
-  const [viewMode, setViewMode] = React.useState<'preview' | 'code'>('preview');
+  const [viewMode, setViewMode] = useLocalStorage<'preview' | 'code'>('accordion_viewMode', 'preview');
   const [copiedProvider, setCopiedProvider] = React.useState<string | null>(null);
 
   const config = React.useMemo(() => ({
@@ -89,6 +94,24 @@ export default function AccordionPage() {
     title: 'Do you know it?',
     content: 'I know you know it but I want to know how you know it.'
   }), [config]);
+
+  if (!mounted) {
+    return (
+     <Container maxWidth="xl" sx={{ py: 4 }}>
+      <Box sx={{ mb: 4 }}>
+        <Typography variant="h4" sx={{ fontWeight: 800, mb: 1 }}>
+           Accordion Comparison
+        </Typography>
+        <Typography variant="body1" color="text.secondary">
+           Analyze space-saving disclosure patterns across different library implementations.
+        </Typography>
+      </Box>
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '50vh' }}>
+        <CircularProgress />
+      </Box>
+     </Container>
+    );
+  }
 
   const handleCopy = (provider: string) => {
     const code = generateAccordionCode(provider, config);

@@ -19,7 +19,8 @@ import {
   Snackbar,
   Alert,
   FormControlLabel,
-  Switch as MuiSwitch
+  Switch as MuiSwitch,
+  CircularProgress
 } from '@mui/material';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import CodeIcon from '@mui/icons-material/Code';
@@ -31,26 +32,30 @@ import { ProviderContext } from '@/components/Providers';
 import { generateSelectCode } from '@/lib/codeGen';
 import { useAI } from '@/context/AIContext';
 
+import { useLocalStorage } from '@/hooks/useLocalStorage';
+import { useMounted } from '@/hooks/useMounted';
+
 export default function SelectPage() {
   const { selectedProviders, themeMode } = React.useContext(ProviderContext);
   const { registerComponent } = useAI();
+  const mounted = useMounted();
   
   // State for config properties
-  const [size, setSize] = React.useState<'small' | 'medium' | 'large'>('medium');
-  const [disabled, setDisabled] = React.useState(false);
-  const [value, setValue] = React.useState('option1');
-  const [label, setLabel] = React.useState('Choose Plan');
-  const [placeholder, setPlaceholder] = React.useState('Select a variant...');
-  const [color, setColor] = React.useState<string | undefined>(undefined);
-  const [borderRadius, setBorderRadius] = React.useState(8);
-  const [borderColor, setBorderColor] = React.useState<string | undefined>(undefined);
+  const [size, setSize] = useLocalStorage<'small' | 'medium' | 'large'>('select_size', 'medium');
+  const [disabled, setDisabled] = useLocalStorage('select_disabled', false);
+  const [value, setValue] = useLocalStorage('select_value', 'option1');
+  const [label, setLabel] = useLocalStorage('select_label', 'Choose Plan');
+  const [placeholder, setPlaceholder] = useLocalStorage('select_placeholder', 'Select a variant...');
+  const [color, setColor] = useLocalStorage<string | undefined>('select_color', undefined);
+  const [borderRadius, setBorderRadius] = useLocalStorage('select_borderRadius', 8);
+  const [borderColor, setBorderColor] = useLocalStorage<string | undefined>('select_borderColor', undefined);
   const [options] = React.useState([
     { value: 'option1', label: 'Basic Plan' },
     { value: 'option2', label: 'Pro Plan' },
     { value: 'option3', label: 'Enterprise' }
   ]);
 
-  const [viewMode, setViewMode] = React.useState<'preview' | 'code'>('preview');
+  const [viewMode, setViewMode] = useLocalStorage<'preview' | 'code'>('select_viewMode', 'preview');
   const [copiedProvider, setCopiedProvider] = React.useState<string | null>(null);
 
   const selectConfig = React.useMemo(() => ({
@@ -86,6 +91,24 @@ export default function SelectPage() {
   React.useEffect(() => {
     registerComponent('select', selectConfig, handleConfigUpdate);
   }, [selectConfig, registerComponent, handleConfigUpdate]);
+
+  if (!mounted) {
+    return (
+     <Container maxWidth="xl" sx={{ py: 4 }}>
+      <Box sx={{ mb: 4 }}>
+        <Typography variant="h4" sx={{ fontWeight: 800, mb: 1 }}>
+          Select Comparison
+        </Typography>
+        <Typography variant="body1" color="text.secondary">
+          Comparing dropdown and selection components across libraries.
+        </Typography>
+      </Box>
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '50vh' }}>
+        <CircularProgress />
+      </Box>
+     </Container>
+    );
+  }
 
   const handleCopy = (provider: string) => {
     const code = generateSelectCode(provider, selectConfig);

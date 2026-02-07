@@ -19,7 +19,8 @@ import {
   Tooltip,
   Snackbar,
   Alert,
-  Divider
+  Divider,
+  CircularProgress
 } from '@mui/material';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import CodeIcon from '@mui/icons-material/Code';
@@ -31,25 +32,29 @@ import { ProviderContext } from '@/components/Providers';
 import { generateIconButtonCode } from '@/lib/codeGen';
 import { useAI } from '@/context/AIContext';
 
+import { useLocalStorage } from '@/hooks/useLocalStorage';
+import { useMounted } from '@/hooks/useMounted';
+
 export default function IconButtonPage() {
   const { selectedProviders } = React.useContext(ProviderContext);
   const { registerComponent } = useAI();
+  const mounted = useMounted();
 
   // State for all config properties
-  const [variant, setVariant] = React.useState('contained');
-  const [size, setSize] = React.useState<'small' | 'medium' | 'large'>('medium');
-  const [borderRadius, setBorderRadius] = React.useState(20);
-  const [label, setLabel] = React.useState('Search');
+  const [variant, setVariant] = useLocalStorage('iconbtn_variant', 'contained');
+  const [size, setSize] = useLocalStorage<'small' | 'medium' | 'large'>('iconbtn_size', 'medium');
+  const [borderRadius, setBorderRadius] = useLocalStorage('iconbtn_borderRadius', 20);
+  const [label, setLabel] = useLocalStorage('iconbtn_label', 'Search');
   
   // Style states
-  const [backgroundColor, setBackgroundColor] = React.useState<string | undefined>(undefined);
-  const [fontColor, setFontColor] = React.useState<string | undefined>(undefined);
-  const [borderColor, setBorderColor] = React.useState<string | undefined>(undefined);
-  const [borderStyle, setBorderStyle] = React.useState<'solid' | 'dashed' | 'dotted' | undefined>(undefined);
-  const [borderWidth, setBorderWidth] = React.useState<number | undefined>(undefined);
-  const [padding, setPadding] = React.useState<{ px: number; py: number } | undefined>(undefined);
+  const [backgroundColor, setBackgroundColor] = useLocalStorage<string | undefined>('iconbtn_backgroundColor', undefined);
+  const [fontColor, setFontColor] = useLocalStorage<string | undefined>('iconbtn_fontColor', undefined);
+  const [borderColor, setBorderColor] = useLocalStorage<string | undefined>('iconbtn_borderColor', undefined);
+  const [borderStyle, setBorderStyle] = useLocalStorage<'solid' | 'dashed' | 'dotted' | undefined>('iconbtn_borderStyle', undefined);
+  const [borderWidth, setBorderWidth] = useLocalStorage<number | undefined>('iconbtn_borderWidth', undefined);
+  const [padding, setPadding] = useLocalStorage<{ px: number; py: number } | undefined>('iconbtn_padding', undefined);
 
-  const [viewMode, setViewMode] = React.useState<'preview' | 'code'>('preview');
+  const [viewMode, setViewMode] = useLocalStorage<'preview' | 'code'>('iconbtn_viewMode', 'preview');
   const [copiedProvider, setCopiedProvider] = React.useState<string | null>(null);
 
   const configBase = React.useMemo(() => ({
@@ -87,6 +92,24 @@ export default function IconButtonPage() {
   React.useEffect(() => {
     registerComponent('icon-button', configBase, handleConfigUpdate);
   }, [configBase, registerComponent, handleConfigUpdate]);
+
+  if (!mounted) {
+    return (
+     <Container maxWidth="xl" sx={{ py: 4 }}>
+      <Box sx={{ mb: 4 }}>
+        <Typography variant="h4" sx={{ fontWeight: 800, mb: 1 }}>
+          IconButton Comparison
+        </Typography>
+        <Typography variant="body1" color="text.secondary">
+          Comparing icon-only buttons vs. labeled icon buttons across libraries.
+        </Typography>
+      </Box>
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '50vh' }}>
+        <CircularProgress />
+      </Box>
+     </Container>
+    );
+  }
 
   const handleCopy = (provider: string) => {
     const code = generateIconButtonCode(provider, { ...configBase, label });

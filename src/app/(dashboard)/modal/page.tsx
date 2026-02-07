@@ -14,7 +14,8 @@ import {
   IconButton,
   Tooltip,
   Snackbar,
-  Alert
+  Alert,
+  CircularProgress
 } from '@mui/material';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import CodeIcon from '@mui/icons-material/Code';
@@ -26,22 +27,26 @@ import { ProviderContext } from '@/components/Providers';
 import { generateModalCode } from '@/lib/codegen/modal';
 import { useAI } from '@/context/AIContext';
 
+import { useLocalStorage } from '@/hooks/useLocalStorage';
+import { useMounted } from '@/hooks/useMounted';
+
 export default function ModalPage() {
   const { selectedProviders } = React.useContext(ProviderContext);
   const { registerComponent } = useAI();
+  const mounted = useMounted();
   
   // State for config
-  const [title, setTitle] = React.useState('Modal Title');
-  const [content, setContent] = React.useState('This is the modal content description. It can be long or short depending on your needs.');
+  const [title, setTitle] = useLocalStorage('modal_title', 'Modal Title');
+  const [content, setContent] = useLocalStorage('modal_content', 'This is the modal content description. It can be long or short depending on your needs.');
   
-  const [borderRadius, setBorderRadius] = React.useState(12);
-  const [backgroundColor, setBackgroundColor] = React.useState<string | undefined>(undefined);
-  const [titleColor, setTitleColor] = React.useState<string | undefined>(undefined);
-  const [textColor, setTextColor] = React.useState<string | undefined>(undefined);
-  const [overlayColor, setOverlayColor] = React.useState<string | undefined>(undefined);
-  const [borderColor, setBorderColor] = React.useState<string | undefined>(undefined);
+  const [borderRadius, setBorderRadius] = useLocalStorage('modal_borderRadius', 12);
+  const [backgroundColor, setBackgroundColor] = useLocalStorage<string | undefined>('modal_backgroundColor', undefined);
+  const [titleColor, setTitleColor] = useLocalStorage<string | undefined>('modal_titleColor', undefined);
+  const [textColor, setTextColor] = useLocalStorage<string | undefined>('modal_textColor', undefined);
+  const [overlayColor, setOverlayColor] = useLocalStorage<string | undefined>('modal_overlayColor', undefined);
+  const [borderColor, setBorderColor] = useLocalStorage<string | undefined>('modal_borderColor', undefined);
 
-  const [viewMode, setViewMode] = React.useState<'preview' | 'code'>('preview');
+  const [viewMode, setViewMode] = useLocalStorage<'preview' | 'code'>('modal_viewMode', 'preview');
   const [copiedProvider, setCopiedProvider] = React.useState<string | null>(null);
 
   const modalConfig = React.useMemo(() => ({
@@ -76,6 +81,24 @@ export default function ModalPage() {
   React.useEffect(() => {
     registerComponent('modal', modalConfig, handleConfigUpdate);
   }, [modalConfig, registerComponent, handleConfigUpdate]);
+
+  if (!mounted) {
+    return (
+     <Container maxWidth="xl" sx={{ py: 4 }}>
+      <Box sx={{ mb: 4 }}>
+        <Typography variant="h4" sx={{ fontWeight: 800, mb: 1 }}>
+          Modal Comparison
+        </Typography>
+        <Typography variant="body1" color="text.secondary">
+          Comparing modal dialogs and overlays across libraries.
+        </Typography>
+      </Box>
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '50vh' }}>
+        <CircularProgress />
+      </Box>
+     </Container>
+    );
+  }
 
   const handleCopy = (provider: string) => {
     const code = generateModalCode(provider, modalConfig);
