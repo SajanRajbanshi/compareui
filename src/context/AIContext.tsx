@@ -53,7 +53,7 @@ export function AIProvider({ children }: { children: React.ReactNode }) {
 
     setIsGenerating(true);
     try {
-      const response = await axios.post('https://compareui-server.vercel.app/api/config/generate', {
+      const response = await axios.post('http://localhost:5001/api/config/generate', {
         componentName: activeComponent,
         prompt: prompt,
         currentConfig: configRef.current
@@ -79,13 +79,15 @@ export function AIProvider({ children }: { children: React.ReactNode }) {
 
     setIsGenerating(true);
     try {
-      const response = await axios.post('https://compareui-server.vercel.app/api/code/generate', {
+      const response = await axios.post('http://localhost:5001/api/code/generate', {
         prompt: prompt,
         prevCode: configRef.current
-      });
+      }, { timeout: 60000 });
 
       if (response.data.success && response.data.config) {
-        setConfigRef.current(response.data.config);
+        if (setConfigRef.current) {
+          setConfigRef.current(response.data.config);
+        }
         setPrompt(''); // Clear prompt on success
       }
     } catch (error: any) {
